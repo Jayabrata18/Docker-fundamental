@@ -7,34 +7,32 @@ const {
   MONGO_PORT,
 } = require("./config/config");
 
+const postRouter = require('./routes/postRoutes');
+
 const app = express();
 
-// const MongoURL =
+const MongoURL = `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_IP}:${MONGO_PORT}/?authSource=admin`;
 
 const connectWithRetry = () => {
   mongoose
-    .connect(
-      "mongodb+srv://jayabrata:<12345>@cluster0.essrb2c.mongodb.net/@172.22.0.2/?authSource=admin", //2:10:20
-      {
-        useNewUrlParams: true,
-        UseUnifiedTopology: true,
-        useFindAndModify: false,
-      }
-    )
+    .connect(MongoURL, {
+    })
     .then(() => console.log("Successfully connected to MongoDB"))
     .catch((e) => {
       console.log(e);
       setTimeout(connectWithRetry, 5000);
     });
-  //.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}@{MONGO_IP}:${MONGO_PORT}/?authSource=admin`);
 };
 
 connectWithRetry();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("<h2>Welcome!!2</h2>");
 });
 
+
+app.use("api/v1/posts", postRouter)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => console.log(`listening on port ${port}`));
